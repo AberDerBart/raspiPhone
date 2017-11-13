@@ -39,13 +39,13 @@ class PhoneClient:
     core=None
     def __init__(self):
         callbacks={ 
-                'global_state_changed': self.global_changed,
                 'registration_state_changed': self.registration_changed,
+                'call_state_changed': self.call_changed,
         }
 
         self.core=linphone.Core.new(callbacks,"phone.conf",None)
 
-
+    def configure(self):
         addr = self.core.create_address("sip:taubsi78@fritz.box")
 
         proxy_cfg = self.core.create_proxy_config()
@@ -58,13 +58,18 @@ class PhoneClient:
 
         auth=self.core.create_auth_info("taubsi78","taubsi78","aquarium","","","")
         self.core.add_auth_info(auth)
-    def global_changed(self,*args, **kwargs):
-        pass
-    def registration_changed(core, call, state, message):
-        pass
+    def registration_changed(self, core, call, state, message):
+        print("Registration State: " + str(state) + ":" + message)
+    def call_changed(self, core, call, state, message):
+        print("Call State:         " + str(state) + ":" + message)
+    def iterate(self):
+        self.core.iterate()
+    def call(self,addr):
+        self.core.invite(addr)
 
-def log(level,msg):
-    print(level,msg)
+def log_handler(level, msg):
+        method = getattr(logging, level)
+        method(msg)
 
-linphone.set_log_handler(log)
+linphone.set_log_handler(log_handler)
 i=PhoneInput(17,27,22)
