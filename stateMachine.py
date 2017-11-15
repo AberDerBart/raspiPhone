@@ -3,7 +3,7 @@ from ringer import Ringer
 
 class Phone(object):
 	def __init__(self):
-		self.ringer=Ringer()
+		self.ringer=Ringer(5)
 	def start_ringing(self):
 		self.ringer.start_ringing()
 	def stop_ringing(self):
