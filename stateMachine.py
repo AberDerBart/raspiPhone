@@ -1,9 +1,15 @@
 from transitions import Machine,State
+from threading import Lock
+
 from ringer import Ringer
+from hook import Hook
 
 class Phone(object):
 	def __init__(self):
+		self.lock=Lock()
+
 		self.ringer=Ringer(5)
+		self.hook=Hook(22,self)
 	def start_ringing(self):
 		self.ringer.start_ringing()
 	def stop_ringing(self):
@@ -16,7 +22,12 @@ class Phone(object):
 		print("dialing")
 	def cancel_call(self):
 		print("canceling")
-		
+	def trans(self,tr):
+		retn=None
+		with self.lock:
+			retn=tr()
+		print("State: ",self.state)
+		return retn
 
 states=[
 	State(name='disconnected'),
