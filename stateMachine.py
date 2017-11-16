@@ -10,6 +10,7 @@ class Phone(object):
 
 		self.ringer=Ringer(5)
 		self.hook=Hook(22,self)
+		self.number=""
 	def start_ringing(self):
 		self.ringer.start_ringing()
 	def stop_ringing(self):
@@ -22,6 +23,10 @@ class Phone(object):
 		print("dialing")
 	def cancel_call(self):
 		print("canceling")
+	def add_digit(self,digit):
+		with self.lock:
+			self.number=self.number+str(digit)
+			print(digit)
 	def trans(self,tr):
 		retn=None
 		with self.lock:
