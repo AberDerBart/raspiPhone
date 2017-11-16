@@ -3,39 +3,7 @@ from gpiozero import Button
 import linphone
 import logging
 
-class PhoneInput:
-    def __init__(self, gpioTick, gpioDial, gpioHook):
-        # init member variables
-        self.ticks=0
-        self.dialedNumber=""
-
-        # init gio pins
-        self.btnHook=Button(gpioHook)
-        self.btnTick=Button(gpioTick)
-        self.btnDial=Button(gpioDial)
-
-        # init gpio callbacks
-        self.btnTick.when_pressed=self.incTicks
-
-        self.btnDial.when_pressed=self.resetTicks
-        self.btnDial.when_released=self.addDigit
-
-        self.btnHook.when_pressed=self.hangup
-        self.btnHook.when_released=self.call
-    def incTicks(self):
-        self.ticks=self.ticks+1
-    def resetTicks(self):
-        self.ticks=0
-    def addDigit(self):
-        if self.ticks:
-            self.dialedNumber+=str(self.ticks%10)
-    def hangup(self):
-        print("hangup")
-        self.dialedNumber=""
-    def call(self):
-        print(self.dialedNumber)
-
-class PhoneClient:
+class SipClient:
     core=None
     def __init__(self):
         callbacks={ 
@@ -72,4 +40,3 @@ def log_handler(level, msg):
         method(msg)
 
 linphone.set_log_handler(log_handler)
-i=PhoneInput(17,27,22)

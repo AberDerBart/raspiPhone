@@ -1,16 +1,18 @@
 from transitions import Machine,State
-from threading import Lock
+from threading import Lock,Timer
 
 from ringer import Ringer
 from hook import Hook
+from sipClient import SipClient
 
 class Phone(object):
 	def __init__(self):
 		self.lock=Lock()
-
 		self.ringer=Ringer(5)
 		self.hook=Hook(22,self)
+		self.sipClient=SipClient()
 		self.number=""
+		self.dialTimer=None
 	def start_ringing(self):
 		self.ringer.start_ringing()
 	def stop_ringing(self):
@@ -20,19 +22,29 @@ class Phone(object):
 	def close_call(self):
 		print("close call")
 	def dial_number(self):
+		self.sipClient.call(self.number)
+		self.number=""
 		print("dialing")
 	def cancel_call(self):
 		print("canceling")
 	def add_digit(self,digit):
+		if(self.dialTimer):
+			self.dialTimer.cancel()
+		self.dialTimer=Timer(1.5,self._dial_timeout)
 		with self.lock:
 			self.number=self.number+str(digit)
-			print(digit)
+			print("Dialed number: " + self.number)
+	def _dial_timeout(self):
+		self.dialTimer=None
+		self.trans(self.dial_timeout)
 	def trans(self,tr):
 		retn=None
 		with self.lock:
 			retn=tr()
 		print("State: ",self.state)
 		return retn
+	def iterate(self):
+		self.sipClient.iterate()
 
 states=[
 	State(name='disconnected'),
