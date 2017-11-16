@@ -11,7 +11,7 @@ class Phone(object):
 		self.lock=Lock()
 		self.ringer=Ringer(5)
 		self.hook=Hook(22,self)
-		self.sipClient=SipClient()
+		self.sipClient=SipClient(self)
 		self.dialplate=Dialplate(17,27,self)
 		self.number=""
 		self.dialTimer=None
@@ -33,7 +33,7 @@ class Phone(object):
 		with self.lock:
 			if(self.dialTimer):
 				self.dialTimer.cancel()
-			self.dialTimer=Timer(1.5,self._dial_timeout)
+			self.dialTimer=Timer(3,self._dial_timeout)
 			self.dialTimer.start()
 			self.number=self.number+str(digit)
 			print("Dialed number: " + self.number)
@@ -70,6 +70,7 @@ transitions=[
 	{'trigger':'outgoing',         'source':'calling',        'dest':'phoning'},
 	{'trigger':'lower_hook',       'source':'calling',        'dest':'idle',     'before':'cancel_call'},
 	{'trigger':'lower_hook',       'source':'phoning',        'dest':'idle',     'before':'close_call'},
+	{'trigger':'call_closed',      'source':'phoning',        'dest':'idle',     'before':'close_call'},
 	{'trigger':'disconnect',       'source':'*',              'dest':'disconnected'}
 ]
 
