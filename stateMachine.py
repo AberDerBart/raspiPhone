@@ -3,6 +3,7 @@ from threading import Lock,Timer
 
 from ringer import Ringer
 from hook import Hook
+from dialplate import Dialplate
 from sipClient import SipClient
 
 class Phone(object):
@@ -11,6 +12,7 @@ class Phone(object):
 		self.ringer=Ringer(5)
 		self.hook=Hook(22,self)
 		self.sipClient=SipClient()
+		self.dialplate=Dialplate(17,27,self)
 		self.number=""
 		self.dialTimer=None
 	def start_ringing(self):
@@ -28,13 +30,15 @@ class Phone(object):
 	def cancel_call(self):
 		print("canceling")
 	def add_digit(self,digit):
-		if(self.dialTimer):
-			self.dialTimer.cancel()
-		self.dialTimer=Timer(1.5,self._dial_timeout)
 		with self.lock:
+			if(self.dialTimer):
+				self.dialTimer.cancel()
+			self.dialTimer=Timer(1.5,self._dial_timeout)
+			self.dialTimer.start()
 			self.number=self.number+str(digit)
 			print("Dialed number: " + self.number)
 	def _dial_timeout(self):
+		print("dial timeout")
 		self.dialTimer=None
 		self.trans(self.dial_timeout)
 	def trans(self,tr):
